@@ -38,18 +38,31 @@ function hittaFynd() {
   fyndLayer.clearLayers(); // Rensa tidigare resultat
 
   let bounds = map.getBounds();
+  let minLon = bounds.getWest();
+  let minLat = bounds.getSouth();
+  let maxLon = bounds.getEast();
+  let maxLat = bounds.getNorth();
 
-  // GBIF bbox format: minLon,minLat,maxLon,maxLat
-  let bbox = `${bounds.getWest()},${bounds.getSouth()},${bounds.getEast()},${bounds.getNorth()}`;
+  // WKT-format för GBIF geometry
+  let geometry = `POLYGON((${minLon} ${minLat}, ${maxLon} ${minLat}, ${maxLon} ${maxLat}, ${minLon} ${maxLat}, ${minLon} ${minLat}))`;
 
   const gbifUrl = `https://api.gbif.org/v1/occurrence/search?` +
-                  `hasCoordinate=true&limit=300&geometry=${bbox}`;
+                  `hasCoordinate=true&limit=300&geometry=${encodeURIComponent(geometry)}`;
 
   fetch(gbifUrl)
-    .then(response => response.json())
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
     .then(data => visaGBIF(data))
-    .catch(err => console.error(err));
+    .catch(err => {
+      console.error(err);
+      alert("Ett fel uppstod vid anrop till GBIF:s API.");
+    });
 }
+
 
 
 // Visa fynden på kartan
