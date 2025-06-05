@@ -36,23 +36,21 @@ let fyndLayer = L.layerGroup().addTo(map);
 // Funktion för att hitta fynd inom valt område
 function hittaFynd() {
   fyndLayer.clearLayers(); // Rensa tidigare resultat
+
   let bounds = map.getBounds();
 
+  // GBIF bbox format: minLon,minLat,maxLon,maxLat
+  let bbox = `${bounds.getWest()},${bounds.getSouth()},${bounds.getEast()},${bounds.getNorth()}`;
+
   const gbifUrl = `https://api.gbif.org/v1/occurrence/search?` +
-                  `decimalLatitude=${(bounds.getNorth() + bounds.getSouth()) / 2}` +
-                  `&decimalLongitude=${(bounds.getEast() + bounds.getWest()) / 2}` +
-                  `&hasCoordinate=true&limit=100` +
-                  `&geometry=POLYGON((${bounds.getWest()} ${bounds.getSouth()},` +
-                  `${bounds.getEast()} ${bounds.getSouth()},` +
-                  `${bounds.getEast()} ${bounds.getNorth()},` +
-                  `${bounds.getWest()} ${bounds.getNorth()},` +
-                  `${bounds.getWest()} ${bounds.getSouth()}))`;
+                  `hasCoordinate=true&limit=300&geometry=${bbox}`;
 
   fetch(gbifUrl)
     .then(response => response.json())
     .then(data => visaGBIF(data))
     .catch(err => console.error(err));
 }
+
 
 // Visa fynden på kartan
 function visaGBIF(data) {
