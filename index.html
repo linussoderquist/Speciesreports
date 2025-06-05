@@ -73,22 +73,46 @@ function visaGBIF(data) {
   }
 
   data.results.forEach(obs => {
-    if(obs.decimalLatitude && obs.decimalLongitude) {
+    if (obs.decimalLatitude && obs.decimalLongitude) {
+      let lat = obs.decimalLatitude;
+      let lon = obs.decimalLongitude;
+      let klass = obs.class || "Okänd";
+      let färg;
+
+      switch (klass) {
+        case "Aves": färg = "orange"; break;
+        case "Mammalia": färg = "brown"; break;
+        case "Amphibia": färg = "darkgreen"; break;
+        case "Reptilia": färg = "olive"; break;
+        case "Insecta": färg = "gold"; break;
+        case "Actinopterygii": färg = "deepskyblue"; break;
+        case "Magnoliopsida": färg = "green"; break;
+        case "Liliopsida": färg = "lime"; break;
+        case "Polypodiopsida": färg = "darkolivegreen"; break;
+        case "Agaricomycetes": färg = "purple"; break;
+        case "Lecanoromycetes": färg = "violet"; break;
+        case "Bryopsida": färg = "teal"; break;
+        default: färg = "black"; break;
+      }
+
       let popupContent = `
         <b>${obs.species || 'Okänd art'}</b><br>
+        Klass: ${klass}<br>
         Datum: ${obs.eventDate || 'Ej angivet'}<br>
         Observatör: ${obs.recordedBy || 'Ej angivet'}
       `;
-      L.circleMarker([obs.decimalLatitude, obs.decimalLongitude], {
+
+      L.circleMarker([lat, lon], {
         radius: 5,
-        color: 'green',
-        fillOpacity: 0.5
+        color: färg,
+        fillOpacity: 0.6
       })
       .addTo(fyndLayer)
       .bindPopup(popupContent);
     }
   });
 }
+
 </script>
 </body>
 </html>
